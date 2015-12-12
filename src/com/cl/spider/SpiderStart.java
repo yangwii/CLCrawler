@@ -19,12 +19,9 @@ public class SpiderStart {
 		// TODO Auto-generated method stub
 		initParams();
 		//YelloPageFetcher.getFetcherURL();
-		//String url = "http://clsq.co/thread0806.php?fid=16";
-		//YelloPageFetcher.getContentFromTechDisucss(null);
 		YelloPageFetcher.fetchTechDiscuss();
-		//YelloPageFetcher.getContentFormDegal(url);
+		YelloPageFetcher.fetchDegalFlag();
 		//YelloPageFetcher.getImageFromDegal();
-		//YelloPageFetcher.testGetImageFromDegal();
 	}
 
 	public static void initParams(){

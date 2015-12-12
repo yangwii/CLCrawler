@@ -71,6 +71,7 @@ public class YelloPageFetcher {
 	}
 	
 	public static void getContentFormDegal(String url){
+		Log.info("----Crawler Content from Degalflag---");
 		if (url == null) {
 			url = "http://clsq.co/thread0806.php?fid=16&search=&page=2";
 		}
@@ -135,8 +136,6 @@ public class YelloPageFetcher {
 					imgurls.add(_imgurl);
 				}
 			}
-			//System.out.println(name);
-			//System.out.println(imgurls);
 			ImageDownLoad imageDownLoad = new ImageDownLoad(name, imgurls);
 			new Thread(imageDownLoad).start();
 			cnt ++;
@@ -182,6 +181,26 @@ public class YelloPageFetcher {
 				@Override
 				public void run() {
 					getContentFromTechDisucss(url);
+				}
+			}.start();
+		}
+	}
+	
+	public static void fetchDegalFlag(){
+		List<String> urList = new ArrayList<String>();
+		String page1url = "http://clsq.co/thread0806.php?fid=16";
+		urList.add(page1url);
+		for(int i = 2; i <= 5; i++){
+			String _url = page1url + "&search=&page=" + i;
+			urList.add(_url);
+		}
+		
+		for(int i = 0; i < urList.size(); i++){
+			String url = urList.get(i);
+			new Thread(){
+				@Override
+				public void run() {
+					getContentFormDegal(url);
 				}
 			}.start();
 		}

@@ -37,12 +37,13 @@ public class PageParser {
 	}
 	
 	public static boolean save2TechTable(String content) {
-		Log.info("---Parse Content----");
+		Log.info("---Parse TechDiscuss Content----");
 		Map<String, String> urls = getUrls(content);
 		return UrlSaveDb.TechSaveURL(urls);
 	}
 	
 	public static boolean save2DegalTable(String content) {
+		Log.info("---Parse DegalFlag Content----");
 		Map<String, String> urls = getUrls(content);
 		return UrlSaveDb.DegalSaveURL(urls);
 	}
