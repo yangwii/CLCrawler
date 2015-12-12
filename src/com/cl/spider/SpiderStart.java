@@ -27,7 +27,8 @@ public class SpiderStart {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
-		YelloPageFetcher.getImageFromDegal();
+		//YelloPageFetcher.getImageFromDegal();
+		YelloPageFetcher.fetchTechDiscuss_PicSpeak("http://clsq.co/htm_data/7/1512/1751629.html");
 	}
 
 	public static void initParams(){

@@ -3,6 +3,10 @@ package com.cl.spider.fetcher;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import javax.security.auth.kerberos.KerberosKey;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -203,6 +207,22 @@ public class YelloPageFetcher {
 					getContentFormDegal(url);
 				}
 			}.start();
+		}
+	}
+	
+	public static void fetchTechDiscuss_PicSpeak(String url) {
+		String content = getContent(url);
+		Document contentDoc = PageParser.getPageDocument(content);
+		Elements elements = contentDoc.getElementsByTag("div");
+		for(int i = 0; i <  elements.size(); i++){
+			Element element = elements.get(i);
+			if("tpc_content do_not_catch".equals(element.attr("class"))){
+				Log.info(element.toString());
+				//Pattern pattern = Pattern.compile("onclick.*))\"$");
+				String pre = element.toString().replaceAll("onclick=\"\\S*\"", "").replaceAll("style=\"\\S*\"", "");
+				Log.info(pre);
+				break;
+			}
 		}
 	}
 }

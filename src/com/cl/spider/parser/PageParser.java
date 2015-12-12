@@ -8,6 +8,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.cl.spider.util.PictureSpeaker;
 import com.cl.spider.util.UrlSaveDb;
 
 public class PageParser {
@@ -26,6 +27,10 @@ public class PageParser {
 			Element element = elements.get(i);
 			if(element.attr("href").startsWith("htm_data") && !element.hasAttr("title")){
 				//urls.add(element.toString());
+				if (element.text().contains("ͼ˵")) {
+					PictureSpeaker.add(element.text(), element.attr("href"));
+					Log.info("---has a new pker---");
+				}
 				urls.put(element.text(), element.attr("href"));
 			}
 		}
