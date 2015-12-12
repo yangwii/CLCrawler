@@ -31,8 +31,8 @@ public class YelloPageFetcher {
 			return null;
 		}
 		HttpParams params = new BasicHttpParams();
-		HttpConnectionParams.setConnectionTimeout(params, 60 * 1000);
-		HttpConnectionParams.setSoTimeout(params, 60 * 1000);
+		HttpConnectionParams.setConnectionTimeout(params, 30 * 1000);
+		HttpConnectionParams.setSoTimeout(params, 30 * 1000);
 		AbstractHttpClient httpClient = new DefaultHttpClient(params);
 		
 		HttpGet httpGet = new HttpGet(url);
@@ -139,7 +139,7 @@ public class YelloPageFetcher {
 			ImageDownLoad imageDownLoad = new ImageDownLoad(name, imgurls);
 			new Thread(imageDownLoad).start();
 			cnt ++;
-			if (cnt == 2) {
+			if (cnt == 5) {
 				break;
 			}
 		}

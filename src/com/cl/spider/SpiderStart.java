@@ -19,9 +19,15 @@ public class SpiderStart {
 		// TODO Auto-generated method stub
 		initParams();
 		//YelloPageFetcher.getFetcherURL();
-		YelloPageFetcher.fetchTechDiscuss();
-		YelloPageFetcher.fetchDegalFlag();
-		//YelloPageFetcher.getImageFromDegal();
+		//YelloPageFetcher.fetchTechDiscuss();
+		//YelloPageFetcher.fetchDegalFlag();
+//		try {
+//			Thread.sleep(10000);
+//		} catch (InterruptedException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		YelloPageFetcher.getImageFromDegal();
 	}
 
 	public static void initParams(){

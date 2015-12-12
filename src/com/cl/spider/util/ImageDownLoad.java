@@ -20,6 +20,8 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
+import com.cl.spider.fetcher.YelloPageFetcher;
+
 public class ImageDownLoad implements Runnable{
 	private final Logger Log = Logger.getLogger(ImageDownLoad.class.getName());
 	
@@ -32,7 +34,7 @@ public class ImageDownLoad implements Runnable{
 	}
 
 	@Override
-	public synchronized void run() {
+	public void run() {
 		// TODO Auto-generated method stub
 		File file = new File("D:\\" + "blue\\"+ name);
 		file.mkdirs();
@@ -40,15 +42,16 @@ public class ImageDownLoad implements Runnable{
 		for(int i = 0; i < imgurl.size(); i++){
 			String img = imgurl.get(i);
 			try {
+				//Log.info(img);
 				String prefix = img.substring(img.lastIndexOf("/") + 1, img.length());
 				HttpParams params = new BasicHttpParams();
-				HttpConnectionParams.setConnectionTimeout(params, 10 * 1000);
-				HttpConnectionParams.setSoTimeout(params, 10 * 1000);
+				HttpConnectionParams.setConnectionTimeout(params, 60 * 1000);
+				HttpConnectionParams.setSoTimeout(params, 60 * 1000);
 				AbstractHttpClient httpClient = new DefaultHttpClient(params);
 				HttpGet httpGet = new HttpGet(img);
 				httpGet.setHeader("User-Agent:", "Mozilla/5.0 (Windows NT 6.3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.73 Safari/537.36");
 				byte[] buffer;
-				HttpResponse response;
+				HttpResponse response;/* = YelloPageFetcher.getResponse(img);*/
 				response = httpClient.execute(httpGet);
 				HttpEntity entity = response.getEntity();
 				if (entity != null) {
@@ -61,8 +64,8 @@ public class ImageDownLoad implements Runnable{
 				}
 			} catch (Exception e) {
 				// TODO: handle exception
-				Log.error(e);
-				break;
+				Log.error(name + " " + e);
+				return;
 			}
 			ImageCount.setCount();
 			Log.info(name + " pic no." + i +" save ok---");
