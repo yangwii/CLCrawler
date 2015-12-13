@@ -1,28 +1,37 @@
 package com.cl.spider.fetcher;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.security.auth.kerberos.KerberosKey;
-
+import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.message.BufferedHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
+import org.jsoup.Connection;
+import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.omg.CosNaming.NamingContextExtPackage.StringNameHelper;
 
 import com.cl.spider.parser.PageParser;
+import com.cl.spider.util.CommonUtil;
 import com.cl.spider.util.DegalImageQueue;
 import com.cl.spider.util.ImageDownLoad;
 
@@ -52,6 +61,54 @@ public class YelloPageFetcher {
 		return response;
 	}
 	
+	public static void getEncodeType(String url){
+		String charset = null;
+		String _url = url.substring(0, url.lastIndexOf("/"));
+		Log.info(_url);
+		HttpResponse response = getResponse(url);
+		Header header = response.getFirstHeader("Content-Type");
+		if(header != null) {
+			String value = header.getValue();
+			if(value.contains("charset")){
+				charset = value.substring(value.indexOf("=") + 1, value.length());
+				Log.info(charset);
+			}
+		}
+		if(charset == null || header == null){
+			//URL url2;
+			try {
+				//url2 = new URL(_url);
+				Connection connection = Jsoup.connect(_url);
+				connection.header("User-Agent:", "Mozilla/5.0 (Windows NT 6.3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.73 Safari/537.36");
+				connection.execute();
+				Document doc = connection.get();
+				Element element = doc.getElementsByTag("meta").first();
+//				Log.info(element.attr("content"));
+				//BufferedReader in = new BufferedReader(new InputStreamReader(url2.openStream()));
+//				StringBuffer sb = new StringBuffer();
+//				String line;
+//				while((line = in.readLine()) != null){
+//					sb.append(line);
+//				}
+//				in.close();
+//				String content = sb.toString();
+//				Pattern pattern = Pattern.compile("charset=\\S*\"");
+//				Matcher matcher = pattern.matcher(content);
+				charset = element.attr("content").substring(element.attr("content").indexOf("=") + 1, element.attr("content").length());
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				Log.error(e);
+			}
+		}
+		if("gb2312".equalsIgnoreCase(charset)){
+			charset = "GBK";
+		}
+		Log.info(charset);
+		CommonUtil.charset = charset;
+		//return charset.toUpperCase();
+	}
+	
+	
 	public static String getContent(String url){
 		if(url == null ) {
 			url = "http://clsq.co/thread0806.php?fid=7";
@@ -64,8 +121,9 @@ public class YelloPageFetcher {
 				return null;
 			}
 			HttpEntity entity = response.getEntity();
+			//String charset = getEncodeType(response);
 			if (entity != null) {
-				content = EntityUtils.toString(entity, "GB2312");
+				content = EntityUtils.toString(entity, CommonUtil.charset);
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
@@ -174,6 +232,7 @@ public class YelloPageFetcher {
 		List<String> urList = new ArrayList<String>();
 		String page1url = "http://clsq.co/thread0806.php?fid=7";
 		urList.add(page1url);
+		getEncodeType(page1url);
 		for(int i = 2; i <= 5; i++){
 			String _url = page1url + "&search=&page=" + i;
 			urList.add(_url);

@@ -20,8 +20,6 @@ import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
-import com.cl.spider.fetcher.YelloPageFetcher;
-
 public class ImageDownLoad implements Runnable{
 	private final Logger Log = Logger.getLogger(ImageDownLoad.class.getName());
 	
