@@ -1,10 +1,12 @@
 package com.cl.spider.fetcher;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.MalformedURLException;
-import java.net.URL;
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -17,7 +19,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.AbstractHttpClient;
 import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.message.BufferedHeader;
 import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
@@ -28,12 +29,13 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
-import org.omg.CosNaming.NamingContextExtPackage.StringNameHelper;
 
 import com.cl.spider.parser.PageParser;
 import com.cl.spider.util.CommonUtil;
 import com.cl.spider.util.DegalImageQueue;
+import com.cl.spider.util.DownLoadPicSpeakerImage;
 import com.cl.spider.util.ImageDownLoad;
+import com.cl.spider.util.PictureSpeaker;
 
 public class YelloPageFetcher {
 	private static final Logger Log = Logger.getLogger(YelloPageFetcher.class.getName());
@@ -63,8 +65,8 @@ public class YelloPageFetcher {
 	
 	public static void getEncodeType(String url){
 		String charset = null;
-		String _url = url.substring(0, url.lastIndexOf("/"));
-		Log.info(_url);
+		//String _url = url.substring(0, url.lastIndexOf("/"));
+		//Log.info(_url);
 		HttpResponse response = getResponse(url);
 		Header header = response.getFirstHeader("Content-Type");
 		if(header != null) {
@@ -75,28 +77,14 @@ public class YelloPageFetcher {
 			}
 		}
 		if(charset == null || header == null){
-			//URL url2;
 			try {
-				//url2 = new URL(_url);
-				Connection connection = Jsoup.connect(_url);
+				Connection connection = Jsoup.connect(url);
 				connection.header("User-Agent:", "Mozilla/5.0 (Windows NT 6.3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.73 Safari/537.36");
 				connection.execute();
 				Document doc = connection.get();
 				Element element = doc.getElementsByTag("meta").first();
-//				Log.info(element.attr("content"));
-				//BufferedReader in = new BufferedReader(new InputStreamReader(url2.openStream()));
-//				StringBuffer sb = new StringBuffer();
-//				String line;
-//				while((line = in.readLine()) != null){
-//					sb.append(line);
-//				}
-//				in.close();
-//				String content = sb.toString();
-//				Pattern pattern = Pattern.compile("charset=\\S*\"");
-//				Matcher matcher = pattern.matcher(content);
 				charset = element.attr("content").substring(element.attr("content").indexOf("=") + 1, element.attr("content").length());
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				Log.error(e);
 			}
 		}
@@ -232,7 +220,7 @@ public class YelloPageFetcher {
 		List<String> urList = new ArrayList<String>();
 		String page1url = "http://clsq.co/thread0806.php?fid=7";
 		urList.add(page1url);
-		getEncodeType(page1url);
+		//getEncodeType(page1url);
 		for(int i = 2; i <= 5; i++){
 			String _url = page1url + "&search=&page=" + i;
 			urList.add(_url);
@@ -246,6 +234,26 @@ public class YelloPageFetcher {
 					getContentFromTechDisucss(url);
 				}
 			}.start();
+		}
+	}
+	
+	public static void fetchTechDiscussSingleThread(){
+		List<String> urList = new ArrayList<String>();
+		String page1url = "http://clsq.co/thread0806.php?fid=7";
+		urList.add(page1url);
+		//getEncodeType(page1url);
+		for(int i = 2; i <= 5; i++){
+			String _url = page1url + "&search=&page=" + i;
+			urList.add(_url);
+		}
+		
+		for(int i = 0; i < urList.size(); i++){
+			String url = urList.get(i);
+			getContentFromTechDisucss(url);
+		}
+		
+		for(String _url : PictureSpeaker.pages){
+			fetchTechDiscuss_PicSpeak("http://clsq.co/" + _url);
 		}
 	}
 	
@@ -270,18 +278,49 @@ public class YelloPageFetcher {
 	}
 	
 	public static void fetchTechDiscuss_PicSpeak(String url) {
+		//getEncodeType(url);
 		String content = getContent(url);
 		Document contentDoc = PageParser.getPageDocument(content);
+		String titleElement = contentDoc.getElementsByTag("title").first().text(); 
+		String header = "<html> <head> " + 
+		        "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=gb2312 \"> " +
+		        "<title>"+ titleElement + "</title> " + "</head>";
+		String title = titleElement.substring(titleElement.indexOf("£¨") + 1, titleElement.indexOf("£©"));
 		Elements elements = contentDoc.getElementsByTag("div");
+		String pre = "";
 		for(int i = 0; i <  elements.size(); i++){
 			Element element = elements.get(i);
 			if("tpc_content do_not_catch".equals(element.attr("class"))){
 				Log.info(element.toString());
-				//Pattern pattern = Pattern.compile("onclick.*))\"$");
-				String pre = element.toString().replaceAll("onclick=\"\\S*\"", "").replaceAll("style=\"\\S*\"", "");
-				Log.info(pre);
+				pre = element.toString().replaceAll("onclick=\"\\S*\"", "").replaceAll("style=\"\\S*\"", "");
+				Pattern pattern = Pattern.compile("src=\"\\S*\"");
+				Matcher matcher = pattern.matcher(pre);
+				while(matcher.find()){
+					String _url = matcher.group().substring(matcher.group().indexOf("=") + 2, matcher.group().length() - 1); 
+					//Log.info(_url);
+					String localURL = DownLoadPicSpeakerImage.downloadImg(_url, title);
+					pre = pre.replace(_url, localURL);
+				}
+				//Log.info(pre);
 				break;
 			}
+		}
+		
+		String html = header + "<body>" + pre +"</body>";
+		Log.info(html);
+		
+		try {
+			FileOutputStream fos = new FileOutputStream(new File("D:\\" + title + ".html"));
+			OutputStreamWriter osw = new OutputStreamWriter(fos, "GBK");
+			BufferedWriter bw = new BufferedWriter(osw);
+			bw.write(html);
+			bw.flush();
+			fos.close();
+			osw.close();
+			bw.close();
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			Log.error(e);
 		}
 	}
 }

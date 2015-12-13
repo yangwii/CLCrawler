@@ -19,7 +19,8 @@ public class SpiderStart {
 		// TODO Auto-generated method stub
 		initParams();
 		//YelloPageFetcher.getFetcherURL();
-		YelloPageFetcher.fetchTechDiscuss();
+		//YelloPageFetcher.fetchTechDiscuss();
+		YelloPageFetcher.fetchTechDiscussSingleThread();
 		//YelloPageFetcher.fetchDegalFlag();
 //		try {
 //			Thread.sleep(10000);
@@ -28,7 +29,7 @@ public class SpiderStart {
 //			e.printStackTrace();
 //		}
 		//YelloPageFetcher.getImageFromDegal();
-		//YelloPageFetcher.fetchTechDiscuss_PicSpeak("http://clsq.co/htm_data/7/1512/1751629.html");
+		//YelloPageFetcher.fetchTechDiscuss_PicSpeak("http://clsq.co/htm_data/7/1512/1756918.html");
 	}
 
 	public static void initParams(){

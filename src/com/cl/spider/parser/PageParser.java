@@ -28,15 +28,18 @@ public class PageParser {
 			if(element.attr("href").startsWith("htm_data") && !element.hasAttr("title")){
 				//urls.add(element.toString());
 				if (element.text().contains("ͼ˵")) {
-					PictureSpeaker.add(element.text(), element.attr("href"));
+					//PictureSpeaker.add(element.text(), element.attr("href"));
+					PictureSpeaker.addUrl(element.attr("href"));
 					Log.info("---has a new pker---");
 				}
 				urls.put(element.text(), element.attr("href"));
 			}
 		}
+		/*
 		for(Map.Entry<String, String> entry : urls.entrySet()){
 			Log.info(entry.getKey() + "-->" + entry.getValue());
 		}
+		*/
 		return urls;
 		//return UrlSaveDb.TechSaveURL(urls);
 	}
