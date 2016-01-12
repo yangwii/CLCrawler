@@ -8,6 +8,7 @@ import java.util.Properties;
 
 import org.apache.log4j.Logger;
 
+import com.cl.spider.fetcher.FetchDoubanBooks;
 import com.cl.spider.fetcher.YelloPageFetcher;
 import com.cl.spider.util.CommonUtil;
 import com.cl.spider.util.DBConn;
@@ -18,9 +19,10 @@ public class SpiderStart {
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		initParams();
+		getDouBanBooks();
 		//YelloPageFetcher.getFetcherURL();
 		//YelloPageFetcher.fetchTechDiscuss();
-		YelloPageFetcher.fetchTechDiscussSingleThread();
+		//YelloPageFetcher.fetchTechDiscussSingleThread();
 		//YelloPageFetcher.fetchDegalFlag();
 //		try {
 //			Thread.sleep(10000);
@@ -48,5 +50,10 @@ public class SpiderStart {
 		catch(IOException e){
 			Log.error(e);
 		}
+	}
+	
+	public static void getDouBanBooks(){
+		FetchDoubanBooks books = new FetchDoubanBooks();
+		books.getBooks();
 	}
 }
