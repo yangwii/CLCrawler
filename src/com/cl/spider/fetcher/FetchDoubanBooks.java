@@ -1,6 +1,8 @@
 package com.cl.spider.fetcher;
 
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.util.Random;
 
 import org.apache.http.HttpEntity;
@@ -19,6 +21,7 @@ import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import com.cl.spider.parser.PageParser;
+import com.cl.spider.util.DBConn;
 
 public class FetchDoubanBooks {
 	private static final Logger LOG = Logger.getLogger(FetchDoubanBooks.class.getName());
@@ -77,9 +80,37 @@ public class FetchDoubanBooks {
 		return content;
 	}
 	
+	private void save2Db(String title, String desc, String link, float rate){
+		String insertsql = "insert into doubanbooks(title, something, link, rate) values(?, ?, ?, ?)";
+		Connection connection = DBConn.getConnection();
+		PreparedStatement insertPS = null;
+		
+		try{
+			connection.setAutoCommit(false);
+			connection.setTransactionIsolation(Connection.TRANSACTION_READ_COMMITTED);
+			
+			insertPS = connection.prepareStatement(insertsql);
+			insertPS.clearParameters();
+			insertPS.setString(1, title);
+			insertPS.setString(2, desc);
+			insertPS.setString(3, link);
+			insertPS.setFloat(4, rate);
+			
+			insertPS.execute();
+			connection.commit();
+			
+			insertPS.close();
+			connection.close();
+		}
+		catch(Exception e){
+			LOG.error(e);
+		}
+	}
+	
 	public void getPhysicBooks(String url){
 		//String url = book_url + book_list[0] + "/book";
 		String content = getContent(url);
+		LOG.info(content);
 		LOG.info(url);
 		Document document = PageParser.getPageDocument(content);
 		Elements elements = document.getElementsByClass("book-list");
@@ -87,9 +118,13 @@ public class FetchDoubanBooks {
 		Elements dlElements = div.getElementsByTag("dl");
 		for(int i = 0; i < dlElements.size(); i++){
 			Element ele = dlElements.get(i);
+			Element titleEle = ele.getElementsByClass("title").get(0);
 			Element descEle = ele.getElementsByTag("div").get(0);
-			Element rateEle = ele.getElementsByTag("div").get(1).getElementsByClass("rating_nums").get(0);
-			LOG.info(descEle.text() + "  ÆÀ·Ö---> " + rateEle.text());
+			if(ele.getElementsByTag("div").size() == 2){
+				Element rateEle = ele.getElementsByTag("div").get(1).getElementsByClass("rating_nums").get(0);
+				LOG.info(titleEle.text() + "  " + titleEle.attr("href").toString() + "  ÆÀ·Ö---> " + rateEle.text());
+				save2Db(titleEle.text(), descEle.text(), titleEle.attr("href").toString(), Float.parseFloat(rateEle.text()));
+			}
 		}
 		
 		Elements nextPages = document.getElementsByClass("next");
@@ -112,7 +147,7 @@ public class FetchDoubanBooks {
 	}
 	
 	public void getBooks(){
-		String url = book_url + book_list[0] + "/book";
+		String url = book_url + book_list[0] + "/book?start=225";
 		getPhysicBooks(url);
 		//LOG.info(content);
 	}
